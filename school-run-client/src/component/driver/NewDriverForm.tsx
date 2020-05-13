@@ -1,6 +1,10 @@
 import React, { useState, FormEvent, useContext, useEffect } from "react";
 import { Segment, Form, Button, Grid } from "semantic-ui-react";
-import { IDriver } from "../../app/models/driver";
+import {
+  IDriver,
+  IDriverFormValues,
+  DriverFormValues,
+} from "../../app/models/driver";
 import { v4 as uuid } from "uuid";
 import DriverStore from "../../app/stores/driverStore";
 import { RouteComponentProps } from "react-router-dom";
@@ -23,51 +27,47 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
     submitting,
     loadDriver,
     driver: initialFormState,
-    clearDriver,
   } = driverStore;
 
-  const [driver, setdriver] = useState<IDriver>({
-    id: "",
-    name: "",
-    addres1: "",
-    addres2: "",
-    city: "",
-    postCode: "",
-    telphone: "",
-  });
+  const [driver, setdriver] = useState(new DriverFormValues());
+
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (match.params.id && driver.id.length === 0) {
-      loadDriver(match.params.id).then(
-        () => initialFormState && setdriver(initialFormState)
-      );
+    if (match.params.id) {
+      loadDriver(match.params.id)
+        .then((driver) => setdriver(new DriverFormValues(driver)))
+        .finally(() => setLoading(false));
     }
-    return () => {
-      clearDriver();
-    };
-  }, [
-    loadDriver,
-    clearDriver,
-    match.params.id,
-    initialFormState,
-    driver.id.length,
-  ]);
+  }, [loadDriver, match.params.id]);
 
   //method handling submitting the form to datbase
-  // const handleSubmit = () => {
-  //     if (driver.id.length === 0) {
-  //         let newDriver = {
-  //             ...driver,
-  //             id: uuid()
-  //         }
-  //         createDriver(newDriver).then(() =>
-  //             history.push(`/driver/${newDriver.id}`));
-  //     } else {
-  //         editDriver(driver).then(() => history.push(`/driver/${driver.id}`));
-  //     }
-  // }
+  //   const handleSubmit = () => {
+  //       if (driver.id.length === 0) {
+  //           let newDriver = {
+  //               ...driver,
+  //               id: uuid()
+  //           }
+  //           createDriver(newDriver).then(() =>
+  //               history.push(`/driver/${newDriver.id}`));
+  //       } else {
+  //           editDriver(driver).then(() => history.push(`/driver/${driver.id}`));
+  //       }
+  //   }
 
   const handleFinalFormSubmit = (values: any) => {
+    const {...driver} = values;
+    
+    if (!driver.id) {
+      let newDriver = {
+        ...driver,
+        id: uuid(),
+      };
+
+      createDriver(newDriver);
+    } else {
+      editDriver(driver);
+    }
     console.log(values);
   };
 
@@ -76,9 +76,10 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
       <Grid.Column width={10}>
         <Segment clearing>
           <FinalForm
+            initialValues={driver}
             onSubmit={handleFinalFormSubmit}
             render={({ handleSubmit }) => (
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} loading={loading}>
                 <Field
                   component={TextInput}
                   name="name"
@@ -121,12 +122,16 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
                   positive
                   type="submit"
                   content="Submit"
+                  disabled={loading}
                 />
                 <Button
-                  onClick={() => history.push("/driver")}
+                  onClick={driver.id 
+                    ?() =>  history.push(`/driver/${driver.id}`)
+                    : () => history.push("/driver")}
                   floated="right"
                   type="button"
                   content="Cancel"
+                  disabled={loading}
                 />
               </Form>
             )}

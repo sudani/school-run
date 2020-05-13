@@ -20,7 +20,7 @@ export class DriverStore {
       // ("loading drivers")
       runInAction(() => {
         drivers.forEach((driver) => {
-          //this.driverRegistry.set(driver.id, driver);
+          // this.driverRegistry.set(driver.id, driver);
           this.drivers.push(driver);
         });
         this.loadingInitial = false;
@@ -36,16 +36,18 @@ export class DriverStore {
   @action loadDriver = async (id: string) => {
     let driver = this.getDriver(id);
     if (driver) {
+      //this.drivers.push(driver);
       this.driver = driver;
-      //  this.driverRegistry.set(driver.id, driver)
+      this.driverRegistry.set(driver.id, driver);
       return driver;
     } else {
-      this.loadingInitial = true;
+      this.loadingInitial = false;
       try {
         driver = await agent.Drivers.details(id);
         runInAction("getting driver", () => {
-          this.driver = driver;
-
+           this.driver = driver;
+           
+          // this.driverRegistry.set(driver.id, driver);
           this.loadingInitial = false;
         });
         return driver;
@@ -117,6 +119,7 @@ export class DriverStore {
       runInAction(() => {
         ("delete driver");
         this.driverRegistry.delete(id);
+
         this.submitting = false;
         this.target = "";
       });

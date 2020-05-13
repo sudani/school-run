@@ -1,5 +1,5 @@
 import React from "react";
-import { FieldRenderProps, Field } from "react-final-form";
+import { FieldRenderProps } from "react-final-form";
 import { FormFieldProps, Form, Label } from "semantic-ui-react";
 
 interface IProps

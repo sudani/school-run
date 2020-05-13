@@ -1,10 +1,6 @@
-import React, { useState, FormEvent, useContext, useEffect } from "react";
+import React, { useState,  useContext, useEffect } from "react";
 import { Segment, Form, Button, Grid } from "semantic-ui-react";
-import {
-  IDriver,
-  IDriverFormValues,
-  DriverFormValues,
-} from "../../app/models/driver";
+import {DriverFormValues} from "../../app/models/driver";
 import { v4 as uuid } from "uuid";
 import DriverStore from "../../app/stores/driverStore";
 import { RouteComponentProps } from "react-router-dom";
@@ -26,7 +22,7 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
     editDriver,
     submitting,
     loadDriver,
-    driver: initialFormState,
+    // driver: initialFormState,
   } = driverStore;
 
   const [driver, setdriver] = useState(new DriverFormValues());
@@ -35,6 +31,7 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
 
   useEffect(() => {
     if (match.params.id) {
+      setLoading(true);
       loadDriver(match.params.id)
         .then((driver) => setdriver(new DriverFormValues(driver)))
         .finally(() => setLoading(false));
@@ -56,8 +53,8 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
   //   }
 
   const handleFinalFormSubmit = (values: any) => {
-    const {...driver} = values;
-    
+    const { ...driver } = values;
+
     if (!driver.id) {
       let newDriver = {
         ...driver,
@@ -68,7 +65,7 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
     } else {
       editDriver(driver);
     }
-    console.log(values);
+    // console.log(values);
   };
 
   return (
@@ -125,9 +122,11 @@ const NewDriverForm: React.FC<RouteComponentProps<DetailPrams>> = ({
                   disabled={loading}
                 />
                 <Button
-                  onClick={driver.id 
-                    ?() =>  history.push(`/driver/${driver.id}`)
-                    : () => history.push("/driver")}
+                  onClick={
+                    driver.id
+                      ? () => history.push(`/driver/${driver.id}`)
+                      : () => history.push("/driver")
+                  }
                   floated="right"
                   type="button"
                   content="Cancel"

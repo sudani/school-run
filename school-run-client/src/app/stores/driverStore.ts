@@ -3,6 +3,7 @@ import { createContext, SyntheticEvent } from "react";
 import { IDriver } from "../models/driver";
 import agent from "../api/agent";
 import { history } from "../..";
+import { toast } from "react-toastify";
 
 configure({ enforceActions: "always" });
 export class DriverStore {
@@ -36,23 +37,20 @@ export class DriverStore {
   @action loadDriver = async (id: string) => {
     let driver = this.getDriver(id);
     if (driver) {
-      //this.drivers.push(driver);
       this.driver = driver;
-      this.driverRegistry.set(driver.id, driver);
+
       return driver;
     } else {
-      this.loadingInitial = false;
+      this.loadingInitial = true;
       try {
         driver = await agent.Drivers.details(id);
         runInAction("getting driver", () => {
-           this.driver = driver;
-           
-          // this.driverRegistry.set(driver.id, driver);
+          this.driver = driver;
+          this.driverRegistry.set(driver.id, driver);
           this.loadingInitial = false;
         });
         return driver;
       } catch (error) {
-        // ("getting driver error")
         runInAction("getting driver error", () => {
           this.loadingInitial = false;
         });
@@ -82,8 +80,8 @@ export class DriverStore {
       runInAction("create driver error", () => {
         this.submitting = false;
       });
-
-      console.log(error);
+      toast.error("Problem with form data");
+      console.log(error.response);
     }
   };
 
@@ -103,7 +101,7 @@ export class DriverStore {
         ("edit driver error");
         this.submitting = false;
       });
-
+      toast.error("Problem with form data");
       console.log(error);
     }
   };

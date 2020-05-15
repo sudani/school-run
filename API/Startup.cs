@@ -1,23 +1,18 @@
-using System.ComponentModel;
-using System.Reflection.PortableExecutable;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Application.Drivers;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
 using Persistance;
 using API.middleware;
+using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace API
 {
@@ -52,8 +47,14 @@ namespace API
                       WithOrigins("http://localhost:3000");
                 });
             });
+           
             services.AddMediatR(typeof(List.Handler).Assembly);
-
+             
+            var builder = services.AddIdentityCore<AppUser>();
+            var identityBuilder= new IdentityBuilder(builder.UserType, builder.Services);
+            identityBuilder.AddEntityFrameworkStores<DataContext>();
+            identityBuilder.AddSignInManager<SignInManager<AppUser>>();
+            services.AddAuthentication();
 
         }
 

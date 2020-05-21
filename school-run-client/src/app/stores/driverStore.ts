@@ -21,8 +21,8 @@ export class DriverStore {
       // ("loading drivers")
       runInAction(() => {
         drivers.forEach((driver) => {
-          // this.driverRegistry.set(driver.id, driver);
-          this.drivers.push(driver);
+          this.driverRegistry.set(driver.id, driver);
+          //this.drivers.push(driver);
         });
         this.loadingInitial = false;
       });

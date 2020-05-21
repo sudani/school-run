@@ -13,6 +13,8 @@ using Persistance;
 using API.middleware;
 using Domain;
 using Microsoft.AspNetCore.Identity;
+using Infrastructure.security;
+using Application.Interfaces;
 
 namespace API
 {
@@ -49,13 +51,15 @@ namespace API
             });
            
             services.AddMediatR(typeof(List.Handler).Assembly);
-             
+             //here we are adding the code for identity generator
             var builder = services.AddIdentityCore<AppUser>();
             var identityBuilder= new IdentityBuilder(builder.UserType, builder.Services);
             identityBuilder.AddEntityFrameworkStores<DataContext>();
             identityBuilder.AddSignInManager<SignInManager<AppUser>>();
             services.AddAuthentication();
 
+            //registering the interface created for JWT token
+            services.AddScoped<IJwtGenerator, JwtGenerator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
